@@ -8,12 +8,25 @@ function CardTemplate() {
   });
 
   const [cardDraw, setCardDraw] = useState([]);
+  const [editIndex, setEditIndex] = useState(null); // Track the index of the card being edited
 
   const handleSubmit = (event) => {
     event.preventDefault();
 
-    // Add the current cardData to the cardDraw array
-    setCardDraw((prevCards) => [...prevCards, cardData]);
+    if (editIndex !== null) {
+      // If in edit mode, update the card at the editIndex
+      setCardDraw((prevCards) => {
+        const updatedCards = [...prevCards];
+        updatedCards[editIndex] = cardData;
+        return updatedCards;
+      });
+
+      // Exit edit mode
+      setEditIndex(null);
+    } else {
+      // Add the current cardData to the cardDraw array
+      setCardDraw((prevCards) => [...prevCards, cardData]);
+    }
 
     // Clear the input fields after submitting
     setCardData({
@@ -27,6 +40,14 @@ function CardTemplate() {
     // You can use setCardDraw to remove the card at the specified index
     setCardDraw((prevCards) => prevCards.filter((_, i) => i !== index));
     alert("You deleted a card");
+  }
+
+  function editCard(index) {
+    // Enter edit mode
+    setEditIndex(index);
+
+    // Set the current cardData to the values of the card being edited
+    setCardData(cardDraw[index]);
   }
 
   return (
@@ -54,7 +75,7 @@ function CardTemplate() {
             value={cardData.chara}
             onChange={(e) => setCardData({ ...cardData, chara: e.target.value })}
           />
-          <button className="add-scene-button" type='submit'>✔️</button>
+          <button className="add-scene-button" type='submit'>{editIndex !== null ? 'Update' : 'Add'}</button>
         </form>
       </div>
 
@@ -64,6 +85,7 @@ function CardTemplate() {
           <p className="card-text">{card.info}</p>
           <p className="card-characters">{card.chara}</p>
           <button className="delete-scene-button" onClick={() => deleteCard(index)}>🗑️</button>
+          <button className="edit-scene-button" onClick={() => editCard(index)}>✏️</button>
         </div>
       ))}
     </>
